@@ -15,11 +15,20 @@ else
   options = {}
   options[:home] = ARGV[0]
   options[:coll_name] = ARGV[1]
-end
+  
+  # This is where the two main config files are supposed to be.
+  config = options[:home] + '/conf/' + options[:coll_name] + '/collection.cfg'
+  default_config = options[:home] + '/conf/collection.cfg.default'
 
-# This is where the two main config files are supposed to be.
-config = options[:home] + '/conf/' + options[:coll_name] + '/collection.cfg'
-default_config = options[:home] + '/conf/collection.cfg.default'
+  path_error_msg = "does not exist. Please make sure the configuration files are in the correct location."
+  if !File.exists? config
+    puts config + path_error_msg
+    abort
+  elsif !File.exists? default_config
+    puts default_config + path_error_msg
+    abort
+  end
+end
 
 # Get all the flags from files up to the equals sign
 # and return a sorted and unique array of config flags
@@ -46,7 +55,7 @@ flags = ["access_alternate=", "access_restriction=", "admin.undeletable=", "admi
 
 missing = flags - get_flags(config, default_config)
 if missing.empty?
-  puts "No flags missing!"
+  puts 'No flags missing!'
 else
   puts "You are missing the following flags:"
   missing.each { |f| print "\t* #{f}\n" }
