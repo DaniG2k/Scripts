@@ -8,7 +8,7 @@ if !ARGV[0] or !ARGV[1]
 Please provide SEARCH_HOME and COLLECTION_NAME
 
 Usage:
-  config_sanity_check SEARCH_HOME COLLECTION_NAME
+  cfg_sanity_check SEARCH_HOME COLLECTION_NAME
 EOF
   abort
 else
