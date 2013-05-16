@@ -45,9 +45,9 @@ flags = ["access_alternate=", "access_restriction=", "admin.undeletable=", "admi
 
 
 missing = flags - get_flags(config, default_config)
-if missing
+if missing.empty?
+  puts "No flags missing!"
+else
   puts "You are missing the following flags:"
   missing.each { |f| print "\t* #{f}\n" }
-else
-  puts "No flags missing!"
 end
