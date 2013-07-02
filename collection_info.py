@@ -5,7 +5,7 @@ import sys, os
 
 # Require Python 3
 if sys.version_info[0] != 3:
-  print("Python 3 is required for this script.")
+	print("Python 3 is required for this script.")
 	print("Please consider upgrading.")
 	sys.exit()
 
@@ -33,7 +33,7 @@ def get_dirs(path):
 	return [dir for dir in os.listdir(path) \
 	if os.path.isdir(os.path.join(path, dir)) and dir[0] != '.']
 
-def collection_triggers():
+def get_collection_triggers():
 	conf_dir = home + '/conf'
 	commands = ['post_gather_command',
 				'post_update_command',
@@ -59,5 +59,5 @@ def collection_triggers():
 					for cmd in commands:
 						if cmd in line:
 							cmd_dic[cmd] = line.split('=')[1]
-			for k, v in cmd_dic.intems():
+			for k, v in cmd_dic.items():
 				print(k, v)
