@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Written by Daniele P. - July 2013
+# Written by Daniele Pestilli - July 2013
 
 import sys, os
 
@@ -10,9 +10,17 @@ if sys.version_info[0] != 3:
 	sys.exit()
 
 if len(sys.argv) == 2:
-	home = sys.argv[1]
+	if sys.argv[1] == '--help' or sys.argv[1] == '-h':
+		print("""
+			Usage: python3 collection_info.py [FB_HOME]\n
+			FB_HOME defaults to /opt/funnelback if left blank.
+			""")
+	else:
+		home = sys.argv[1]
 elif len(sys.argv) > 2:
-	sys.exit('Too many arguments passed.\nExiting.')
+	sys.exit("""Too many arguments passed.\n
+		Run python3 collection_info.py -h for usage info.\n
+		Exiting.""")
 else:
 	home = '/opt/funnelback'
 
