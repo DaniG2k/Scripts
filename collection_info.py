@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Written by Daniele Pestilli - July 2013
+# Written by Daniele P. - July 2013
 
 import sys, os
 
@@ -55,9 +55,7 @@ def get_collection_triggers():
 	collections = get_dirs(conf_dir)
 
 	for collection in collections:
-		
 		cfg_file = conf_dir + '/' + collection + '/collection.cfg'
-
 		# Check if collection.cfg is missing.
 		if not os.path.exists(cfg_file):
 			print('WARNING: collection.cfg not found.')
