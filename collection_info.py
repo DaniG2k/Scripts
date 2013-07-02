@@ -12,12 +12,12 @@ if sys.version_info[0] != 3:
 if len(sys.argv) == 2:
 	home = sys.argv[1]
 elif len(sys.argv) > 2:
-	sys.exit('Too many arguments passed.')
+	sys.exit('Too many arguments passed.\nExiting.')
 else:
 	home = '/opt/funnelback'
 
 if not os.path.exists(home):
-	print('You do not seem to have Funnelback installed in ' + home)
+	print('Funnelback does not appear to be installed in ' + home)
 	sys.exit('Exiting.')
 
 def tech_specs():
