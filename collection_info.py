@@ -36,10 +36,11 @@ def get_dirs(path):
 def find_strings_in_file(strings_a, file):
 	dic = {}
 	with open(file, 'r') as f:
-		for line in f:
-			for s in strings_a:
-				if s in line:
-					d[s] = line.split('=')[1]
+		while strings_a:
+			srch_str = strings_a.pop()
+			for line in f:
+				if srch_str in line:
+					d[srch_str] = line.split('=')[1]
 	return dic
 
 def get_collection_triggers():
