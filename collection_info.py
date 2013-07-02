@@ -33,6 +33,15 @@ def get_dirs(path):
 	return [dir for dir in os.listdir(path) \
 	if os.path.isdir(os.path.join(path, dir)) and dir[0] != '.']
 
+def find_strings_in_file(strings_a, file):
+	dic = {}
+	with open(file, 'r') as f:
+		for line in f:
+			for s in strings_a:
+				if s in line:
+					d[s] = line.split('=')[1]
+	return dic
+
 def get_collection_triggers():
 	conf_dir = home + '/conf'
 	commands = ['post_gather_command',
@@ -53,11 +62,6 @@ def get_collection_triggers():
 			print('WARNING: collection.cfg not found.')
 			print('Skipping this directory.')
 		else:
-			cmd_dic = {}
-			with open(cfg_file, 'r') as file:
-				for line in file:
-					for cmd in commands:
-						if cmd in line:
-							cmd_dic[cmd] = line.split('=')[1]
+			cmd_dic = find_strings_in_file(commands, cfg_file)
 			for k, v in cmd_dic.items():
 				print(k, v)
