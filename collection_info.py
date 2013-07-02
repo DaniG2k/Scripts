@@ -23,11 +23,11 @@ if not os.path.exists(home):
 def tech_specs():
 	sys_info = os.system('uname -a')
 	fb_release = os.system('cat ' + home + '/VERSION/funnelback-release')
-
-	print("===== Tech Specs =====\n")
-	print('* ' + sys_info)
-	print('* ' + fb_release)
-	print('* Install dir: ' + home + '\n')
+	s = "===== Tech Specs =====\n"
+	s += '* ' + sys_info + '\n'
+	s += '* ' + fb_release + '\n'
+	s += '* Install dir: ' + home + '\n'
+	return s
 
 def get_dirs(path):
 	return [dir for dir in os.listdir(path) \
