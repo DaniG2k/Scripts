@@ -10,13 +10,19 @@ if sys.version_info[0] != 3:
 	sys.exit()
 
 if len(sys.argv) == 2:
-	if sys.argv[1] == '--help' or sys.argv[1] == '-h':
+	help_flags = ['--help', '-help', '-h']
+	if sys.argv[1] in help_flags:
 		print("""
 			Usage: python3 collection_info.py [FB_HOME]\n
-			FB_HOME defaults to /opt/funnelback if left blank.
+			FB_HOME defaults to /opt/funnelback if left blank.\n
+			Paths must start with a '/'
 			""")
 	else:
-		home = sys.argv[1]
+		# Simple check to see if the argument is a path
+		if sys.argv[1][0] == '/':
+			home = sys.argv[1]
+		else:
+			sys.exit("The argument you've passed doesn't appear to be a proper path.")
 elif len(sys.argv) > 2:
 	sys.exit("""Too many arguments passed.\n
 		Run python3 collection_info.py -h for usage info.\n
