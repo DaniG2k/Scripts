@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # Written by Daniele Pestilli - July 2013
 
-import sys, os
+import sys, os, platform
 
 # Require Python 3
 if sys.version_info[0] != 3:
@@ -12,11 +12,10 @@ if sys.version_info[0] != 3:
 if len(sys.argv) == 2:
 	help_flags = ['--help', '-help', '-h']
 	if sys.argv[1] in help_flags:
-		print("""
-			Usage: python3 collection_info.py [FB_HOME]\n
-			FB_HOME defaults to /opt/funnelback if left blank.\n
-			Paths must start with a '/'
-			""")
+		print('Usage: python3 collection_info.py [FB_HOME]')
+		print('FB_HOME defaults to /opt/funnelback if left blank.')
+		print("Paths must start with a '/'")
+		sys.exit()
 	else:
 		# Simple check to see if the argument is a path
 		if sys.argv[1][0] == '/':
@@ -24,8 +23,8 @@ if len(sys.argv) == 2:
 		else:
 			sys.exit("The argument you've passed doesn't appear to be a proper path.")
 elif len(sys.argv) > 2:
-	sys.exit("""Too many arguments passed.\n
-		Run python3 collection_info.py -h for usage info.\n
+	sys.exit("""Too many arguments passed.
+		Run python3 collection_info.py -h for usage info.
 		Exiting.""")
 else:
 	home = '/opt/funnelback'
@@ -35,13 +34,15 @@ if not os.path.exists(home):
 	sys.exit('Exiting.')
 
 def tech_specs():
-	sys_info = os.system('uname -a')
-	fb_release = os.system('cat ' + home + '/VERSION/funnelback-release')
+	sys_info = platform.system() + ' ' + platform.release() + ' ' + platform.machine()
+	with open(home+'/VERSION/funnelback-release') as f:
+		fb_release = f.readlines()[0]
 	s = "===== Tech Specs =====\n"
 	s += '* ' + sys_info + '\n'
 	s += '* ' + fb_release + '\n'
 	s += '* Install dir: ' + home + '\n'
 	return s
+
 
 def get_dirs(path):
 	return [dir for dir in os.listdir(path) \
