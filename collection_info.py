@@ -21,7 +21,7 @@ if len(sys.argv) == 2:
 	else:
 		# Simple check to see if the argument is a path
 		if sys.argv[1][0] == '/':
-			home = sys.argv[1]
+			PATH_HOME = sys.argv[1]
 		else:
 			sys.exit("\nThe argument you've passed doesn't appear to be a proper path or flag.\n")
 elif len(sys.argv) > 2:
@@ -29,7 +29,9 @@ elif len(sys.argv) > 2:
 	print('Run python3 collection_info.py -h for usage info.')
 	sys.exit('Exiting.\n')
 else:
-	home = '/opt/funnelback'
+	# Default to /opt/funnelback if no path is specified
+	# in argv[1]
+	PATH_HOME = '/opt/funnelback'
 
 def fb_release_path_error_msg(path):
 	print("Cannot find Funnelback release file in " + path)
@@ -66,17 +68,17 @@ def proper_fb_install(p):
 ########################
 # Only continue executing the script
 # if the home path is correct. Exit otherwise.
-if not proper_fb_install(home):
+if not proper_fb_install(PATH_HOME):
 	sys.exit('Exiting.\n')
 ########################
 
 def tech_specs():
 	sys_info = platform.system() + ' ' + platform.release() + ' ' + platform.machine()
-	fb_release = check_fb_release(home+'/VERSION/funnelback-release')
+	fb_release = check_fb_release(PATH_HOME+'/VERSION/funnelback-release')
 	s = "===== Tech Specs =====\n"
 	s += '* ' + sys_info + '\n'
 	s += '* ' + fb_release + '\n'
-	s += '* Install dir: ' + home + '\n'
+	s += '* Install dir: ' + PATH_HOME + '\n'
 	return s
 
 # Get an array of all (unhidden) directories in 'path' variable
@@ -102,7 +104,7 @@ def get_collection_triggers():
 	# ensuing script. This is what we'll be returning.
 	cmd_dic = {}
 
-	conf_dir = home + '/conf'
+	conf_dir = PATH_HOME + '/conf'
 	collections = get_dirs(conf_dir)
 	commands = ['post_gather_command',
 				'post_update_command',
