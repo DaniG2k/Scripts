@@ -37,7 +37,7 @@ def check_fb_release(path):
 	# Return a string containing the FB release
 	# or return False.
 	try:
-		with open(path) as f:
+		with open(path, 'r') as f:
 			fb_release = f.readlines()
 		# f.readlines() will return an array object with every line in the file.
 		# The FB version info will be the first (and only) line,
@@ -47,7 +47,7 @@ def check_fb_release(path):
 		fb_release_path_error_msg(path)
 		return False
 
-def check_fb_install(p):
+def proper_fb_install(p):
 	# Check if path p exists. If it does, check that
 	# it's actually a funnelback installation and not
 	# some random directory.
@@ -64,7 +64,7 @@ def check_fb_install(p):
 ########################
 # Only continue executing the script
 # if the home path is correct. Exit otherwise.
-if not check_fb_install(home):
+if not proper_fb_install(home):
 	sys.exit('Exiting.')
 ########################
 
@@ -77,11 +77,12 @@ def tech_specs():
 	s += '* Install dir: ' + home + '\n'
 	return s
 
-
+# Get an array of all (unhidden) directories in 'path' variable
 def get_dirs(path):
 	return [dir for dir in os.listdir(path) \
 	if os.path.isdir(os.path.join(path, dir)) and dir[0] != '.']
 
+# Find strings array in a given collection.cfg file.
 def find_strings_in_file(strings_a, file):
 	dic = {}
 	with open(file, 'r') as f:
@@ -89,18 +90,18 @@ def find_strings_in_file(strings_a, file):
 			srch_str = strings_a.pop()
 			for line in f:
 				if srch_str in line:
+					# Store the command as key, and the string after
+					# the '=' as value.
 					d[srch_str] = line.split('=')[1]
 	return dic
 
 def get_collection_triggers():
+	cmd_dic = {}
 	conf_dir = home + '/conf'
 	commands = ['post_gather_command',
 				'post_update_command',
 				'post_instant_gather_command',
 				'post_instant_update_command']
-
-	# Get a list of collection directories.
-	# Omit any directories that start with '.' (hidden)
 	collections = get_dirs(conf_dir)
 
 	for collection in collections:
@@ -110,6 +111,7 @@ def get_collection_triggers():
 			print('WARNING: collection.cfg not found.')
 			print('Skipping this directory.')
 		else:
+			
 			cmd_dic = find_strings_in_file(commands, cfg_file)
 			for k, v in cmd_dic.items():
 				print(k, v)
