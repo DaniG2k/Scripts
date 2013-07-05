@@ -21,7 +21,8 @@ if len(sys.argv) == 2:
 		if sys.argv[1][0] == '/':
 			home = sys.argv[1]
 		else:
-			sys.exit("The argument you've passed doesn't appear to be a proper path.")
+			sys.exit("The argument you've passed doesn't appear\
+			 to be a proper path.")
 elif len(sys.argv) > 2:
 	sys.exit("""Too many arguments passed.
 		Run python3 collection_info.py -h for usage info.
@@ -86,13 +87,12 @@ def get_dirs(path):
 def find_strings_in_file(strings_a, file):
 	dic = {}
 	with open(file, 'r') as f:
-		while strings_a:
-			srch_str = strings_a.pop()
+		for srch_str in strings_a:
 			for line in f:
 				if srch_str in line:
 					# Store the command as key, and the string after
 					# the '=' as value.
-					d[srch_str] = line.split('=')[1]
+					dic[srch_str] = line.split('=')[1]
 	return dic
 
 def get_collection_triggers():
@@ -111,7 +111,11 @@ def get_collection_triggers():
 			print('WARNING: collection.cfg not found.')
 			print('Skipping this directory.')
 		else:
-			
-			cmd_dic = find_strings_in_file(commands, cfg_file)
-			for k, v in cmd_dic.items():
-				print(k, v)
+			# cmd_dic is a dictionary where the key is the collection name
+			# and the valye is another dictionary with the command and 
+			# ensuing script.
+			cmd_dic[collection] = find_strings_in_file(commands, cfg_file)
+	return cmd_dic
+
+for k, v in get_collection_triggers().items():
+	print(k,v)
