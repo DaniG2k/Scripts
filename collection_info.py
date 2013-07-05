@@ -97,24 +97,25 @@ def find_strings_in_file(strings_a, file):
 	return dic
 
 def get_collection_triggers():
+	# cmd_dic is a dictionary where the key is the collection name
+	# and the valye is another dictionary with the command and 
+	# ensuing script. This is what we'll be returning.
 	cmd_dic = {}
+
 	conf_dir = home + '/conf'
+	collections = get_dirs(conf_dir)
 	commands = ['post_gather_command',
 				'post_update_command',
 				'post_instant_gather_command',
 				'post_instant_update_command']
-	collections = get_dirs(conf_dir)
 
 	for collection in collections:
 		cfg_file = conf_dir + '/' + collection + '/collection.cfg'
 		# Check if collection.cfg is missing.
 		if not os.path.exists(cfg_file):
-			print('WARNING: collection.cfg not found.')
-			print('Skipping this directory.')
+			print('\nWARNING: collection.cfg not found.')
+			print('Skipping this directory.\n')
 		else:
-			# cmd_dic is a dictionary where the key is the collection name
-			# and the valye is another dictionary with the command and 
-			# ensuing script.
 			cmd_dic[collection] = find_strings_in_file(commands, cfg_file)
 	return cmd_dic
 
