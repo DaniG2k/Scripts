@@ -39,7 +39,7 @@ def check_fb_release(path):
 	try:
 		with open(path) as f:
 			fb_release = f.readlines()
-		# f.readlines() will return an array object with ever line.
+		# f.readlines() will return an array object with every line in the file.
 		# The FB version info will be the first (and only) line,
 		# so return that array element.
 		return fb_release[0]
@@ -61,9 +61,12 @@ def check_fb_install(p):
 		print("Funnelback instance found at " + p + '\nProceeding...')
 		return True
 
-# Only continue executing the script if the specified path is correct.
+########################
+# Only continue executing the script
+# if the home path is correct. Exit otherwise.
 if not check_fb_install(home):
 	sys.exit('Exiting.')
+########################
 
 def tech_specs():
 	sys_info = platform.system() + ' ' + platform.release() + ' ' + platform.machine()
