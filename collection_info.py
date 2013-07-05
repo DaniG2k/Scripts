@@ -1,32 +1,33 @@
 #!/usr/bin/python
 # Written by Daniele Pestilli - July 2013
 
-import sys, os, platform
+import sys
+import os
+import platform
 
 # Require Python 3
 if sys.version_info[0] != 3:
-	print("Python 3 is required for this script.")
-	print("Please consider upgrading.")
+	print("\n!!! Python 3 is required for this script !!!")
+	print("Please consider upgrading.\n")
 	sys.exit()
 
 if len(sys.argv) == 2:
-	help_flags = ['--help', '-help', '-h']
-	if sys.argv[1] in help_flags:
-		print('Usage: python3 collection_info.py [FB_HOME]')
+	help_flags = ['--help', '--h', '-help', '-h']
+	if sys.argv[1].lower() in help_flags:
+		print('\nUsage: python3 collection_info.py [FB_HOME]')
 		print('FB_HOME defaults to /opt/funnelback if left blank.')
-		print("Paths must start with a '/'")
+		print("Paths must start with a '/'\n")
 		sys.exit()
 	else:
 		# Simple check to see if the argument is a path
 		if sys.argv[1][0] == '/':
 			home = sys.argv[1]
 		else:
-			sys.exit("The argument you've passed doesn't appear\
-			 to be a proper path.")
+			sys.exit("\nThe argument you've passed doesn't appear to be a proper path or flag.\n")
 elif len(sys.argv) > 2:
-	sys.exit("""Too many arguments passed.
-		Run python3 collection_info.py -h for usage info.
-		Exiting.""")
+	print('\nToo many arguments passed.')
+	print('Run python3 collection_info.py -h for usage info.')
+	sys.exit('Exiting.\n')
 else:
 	home = '/opt/funnelback'
 
