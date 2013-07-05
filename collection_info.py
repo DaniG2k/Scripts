@@ -29,14 +29,45 @@ elif len(sys.argv) > 2:
 else:
 	home = '/opt/funnelback'
 
-if not os.path.exists(home):
-	print('Funnelback does not appear to be installed in ' + home)
+def fb_release_path_error_msg(path):
+	print("Cannot find Funnelback release file in " + path)
+	print("Are you sure you specified the correct Funnelback install path?")
+
+def check_fb_release(path):
+	# Return a string containing the FB release
+	# or return False.
+	try:
+		with open(path) as f:
+			fb_release = f.readlines()
+		# f.readlines() will return an array object with ever line.
+		# The FB version info will be the first (and only) line,
+		# so return that array element.
+		return fb_release[0]
+	except IOError:
+		fb_release_path_error_msg(path)
+		return False
+
+def check_fb_install(p):
+	# Check if path p exists. If it does, check that
+	# it's actually a funnelback installation and not
+	# some random directory.
+	fb_release_path = p+'/VERSION/funnelback-release'
+	if not os.path.exists(p):
+		print(p + ' does not seem to exist.')
+		return False
+	elif not check_fb_release(fb_release_path):
+		return False
+	else:
+		print("Funnelback instance found at " + p + '\nProceeding...')
+		return True
+
+# Only continue executing the script if the specified path is correct.
+if not check_fb_install(home):
 	sys.exit('Exiting.')
 
 def tech_specs():
 	sys_info = platform.system() + ' ' + platform.release() + ' ' + platform.machine()
-	with open(home+'/VERSION/funnelback-release') as f:
-		fb_release = f.readlines()[0]
+	fb_release = check_fb_release(home+'/VERSION/funnelback-release')
 	s = "===== Tech Specs =====\n"
 	s += '* ' + sys_info + '\n'
 	s += '* ' + fb_release + '\n'
