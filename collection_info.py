@@ -55,7 +55,7 @@ def proper_fb_install(p):
 	# some random directory.
 	fb_release_path = p+'/VERSION/funnelback-release'
 	if not os.path.exists(p):
-		print(p + ' does not seem to exist.')
+		print('\n'+p+' does not seem to exist.')
 		return False
 	elif not check_fb_release(fb_release_path):
 		return False
@@ -67,7 +67,7 @@ def proper_fb_install(p):
 # Only continue executing the script
 # if the home path is correct. Exit otherwise.
 if not proper_fb_install(home):
-	sys.exit('Exiting.')
+	sys.exit('Exiting.\n')
 ########################
 
 def tech_specs():
