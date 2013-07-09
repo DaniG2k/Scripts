@@ -55,7 +55,7 @@ class redisMessagingTools {
 
                 def messageDb = this.jpool.getResource()
                 try{
-                                     def queue = 'myzset'
+                        def queue = 'myzset'
                         messages = messageDb.zrangeByScore(queue, start, stop)
                 } finally {
                         this.jpool.returnResource(messageDb)
