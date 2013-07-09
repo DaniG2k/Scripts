@@ -27,7 +27,7 @@ class redisMessagingTools {
                 }
                 try{
                         /* JedisPool constructor takes poolConfig, host, port, timeout and password */
-                                                JedisPool jpool =  new JedisPool(new JedisPoolConfig(), host, port, timeout, password)
+                        JedisPool jpool =  new JedisPool(new JedisPoolConfig(), host, port, timeout, password)
                 } catch(Exception e){
                         log.info("Could not open connection to RedisDB: {}\n{}", e, e.getStackTrace())
                 }
