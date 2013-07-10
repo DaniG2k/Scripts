@@ -62,16 +62,8 @@ class redisMessagingTools {
 	
 	def checkAmericanDate(d, m){
 		// If the day is less than 12 and the month is less than 31
-		// this might be an American format date. Return with swapped values. 
-		if(d <= 12 && d >= 1 && m <= 31 && m >= 12){
-			// We can only swap if the input month was bigger than 12.
-			// Otherwise we cannot infer it's an American date.
-			def swap_day = m
-			def swap_month = d
-			return [swap_day, swap_month]
-		} else {
-			return [d, m]
-		}
+		// this might be an American format date. Return with swapped values.
+		d <= 12 && d >= 1 && m <= 31 && m >= 12 ? [m, d] : [d, m]
 	}
 
 	def dateIsOk(String date){
