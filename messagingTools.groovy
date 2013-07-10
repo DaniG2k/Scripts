@@ -1,4 +1,6 @@
-mport redis.clients.jedis.Jedis;
+// Funnelback UK
+// D. Pestilli - Jul 2013
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.exceptions.JedisConnectionException;
@@ -13,72 +15,124 @@ import org.slf4j.LoggerFactory;
 class redisMessagingTools {
 
         def port = 6379
-        def timeout = 5
-        static password //'AnwkHnT2lnGL5Qdlp9hb+A'
-        static queueName
-        Logger log
-        JedisPool jpool
+	def timeout = 100
+        static hostName
+	static password //'AnwkHnT2lnGL5Qdlp9hb+A'
+	static queueName
+	Logger log
+	JedisPool jpool
 
-        redisMessagingTools(pathToConfig) {
-                this.log = LoggerFactory.getLogger('redisToolsClient')
-                log.info('Starting Client')
+	redisMessagingTools(pathToConfig) {
+		this.log = LoggerFactory.getLogger('redisToolsClient')
+		log.info('Starting Client')
 
-                try {
-                        log.info("Attempting to parse {} configuration file", pathToConfig)
-                        def config = new ConfigSlurper().parse(new File(pathToConfig).toURL())
-                        redisMessagingTools.queueName = config.queueName ?: 'matrix'
-                        redisMessagingTools.password = config.password ?: ''
-                        log.info("properties {} set on {}", config.toString(), this.class)
-                } catch(FileNotFoundException e) {
-                                   log.info("File {} produced error: {}", pathToConfig, e)
-                }
-                try {
-                        /* JedisPool constructor takes poolConfig, host, port, timeout and password */
-                        jpool =  new JedisPool(new JedisPoolConfig(), hostName, port, timeout, password)
-                } catch(Exception e) {
-                        log.info("Could not open connection to RedisDB: {}\n{}", e, e.getStackTrace())
-                }
-        }
-        /* Returns a Date object in milliseconds from
-        * either ddMMyyyy or dd/MM/yyyy
-        */
-        def parseDate(String date) {
-                def s = date.contains('/') ? "dd/MM/yyyy" : "ddMMyyyy"
-                def newDate = new Date().parse(s, date)
-                // return the UNIX time in milliseconds
-                return newDate.getTime()
-        }
+		try {
+			log.info("Attempting to parse {} configuration file", pathToConfig)
+			def config = new ConfigSlurper().parse(new File(pathToConfig).toURL())
+			redisMessagingTools.queueName = config.queueName ?: 'matrix'
+			redisMessagingTools.password = config.password ?: ''
+ 			redisMessagingTools.hostName = config.hostName ?: 'localhost'
+			log.info("properties {} set on {}", config.toString(), this.class)
 
-        /* Input one, possibly two dates. If no second
-         * date is specified, default to inputting the
-         * same one twice
-         */
-        def getMessagesByDate(dateA, dateB=dateA) {
-                def start = parseDate(dateA)
-                def stop = parseDate(dateB)
-                if( start == stop ){ stop += 86399000 } // milliseconds in a day
+			// Only try creating a new jedis pool object if the config file
+			// was successfully found.
+			try {
+				/* JedisPool constructor takes poolConfig, host, port, timeout and password */
+				jpool =  new JedisPool(new JedisPoolConfig(), hostName, port, timeout, password)
+			} catch(Exception e) {
+				log.info("Could not open connection to RedisDB: {}\n{}", e, e.getStackTrace())
+			}
+		} catch(FileNotFoundException e) {
+			log.info("File {} produced error: {}", pathToConfig, e)
+		}
+		
+	}
+	
+	def checkAmericanDate(d, m, y){
+		// If the day is less than 12 and the month is less than 31
+		// this might be an American format date. Return with swapped values. 
+		if(d <= 12 && d >= 1){
+			if(m <= 31 && m >= 1){
+				def swap_day = m
+				def swap_month = d
+				return [swap_day, swap_month, y]
+			}
+		} else {
+			return [d, m, y]
+		}
+	}
 
-                def messageDb = this.jpool.getResource()
-                try{
-                        def queue = 'myzset'
-                        messages = messageDb.zrangeByScore(queue, start, stop)
-                } finally {
-                        this.jpool.returnResource(messageDb)
-                }
-                return messages
-        }
+	def dateIsOk(String date){
+		def d = date[0..1].toInteger()
+    		def m = date[3..4].toInteger()
+		def year = date[6..-1].toInteger()
+		def day = checkAmericanDate(d, m, y)[0]
+		def month = checkAmericanDate(d, m, y)[1]
+		
+    		if(day > 31 || day < 1){
+        		log.info('Invalid day input.')
+			return false
+		} else if(month > 12 || month < 1) {
+		        log.info('Invalid month input.')
+			return false
+		} else if(year < 1970){
+		        log.info('Invalid year input.')
+			return false
+		} else {
+			return true
+		}
+	}	
 
-        // Get a key's Time To Live
-                def getMessageTTL(key) {
-                def msg = this.jpool.getResource()
-                return msg.ttl(key)
-        }
-        //println getMessageTTL('mykey')
+	/* Returns a Date object in milliseconds from
+ 	* either ddMMyyyy or dd/MM/yyyy
+ 	*/
+	def parseDate(String date) {
+		def format = ''
+		println date.size()
+       		if (date.size() < 8 || date.size() > 10){
+ 		   log.info('The date format {} does not appear to be correct.', date)
+		} else if(date.contains('/') && dateIsOk(date)){
+			format = 'dd/MM/yyyy'
+    		} else if (date.contains('-') && dateIsOk(date)){
+			format = 'dd-MM-yyyy'	
+		} else {
+			format = 'ddMMyyyy'
+		}
+		def newDate = new Date().parse(format, date)
+        	// return the UNIX time in milliseconds
+		return newDate.getTime()
+	}
 
-        // Close the application:
-        //jpool.destroy();
+	/* Input one, possibly two dates. If no second
+	 * date is specified, default to inputting the
+	 * same one twice
+	 */
+	def getMessagesByDate(dateA, dateB=dateA) {
+		def start = parseDate(dateA)
+		def stop = parseDate(dateB)	
+		if( start == stop ){ stop += 86399000 } // milliseconds in a day
+		
+		def messageDb = this.jpool.getResource()
+		try{
+			def messages = messageDb.zrangeByScore(this.queueName, start, stop)
+			return messages
+		} finally {
+			this.jpool.returnResource(messageDb)
+		}
+		return null
+	}
+	
+	// Get a key's Time To Live
+	def getMessageTTL(key) {
+		def msg = this.jpool.getResource()
+		return msg.ttl(key)
+	}
+	
+	// Close the application:
+	//jpool.destroy();
 }
 
 
 def x = new redisMessagingTools('config.groovy')
-println x.getMessagesByDate('02062013')
+println x.getMessagesByDate('02-06-2013')
+println x.getMessageTTL('mykey')
