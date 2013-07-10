@@ -12,12 +12,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+def checkConfigFileExists(pathToConfig){
+	def config_file = new File(pathToConfig)
+	if(!config_file.exists()){
+		println 'Config file does not seem to exist.'
+		return false
+	} else {
+		return true
+	}
+}
+
 class redisMessagingTools {
 
         def port = 6379
 	def timeout = 100
         static hostName
-	static password //'AnwkHnT2lnGL5Qdlp9hb+A'
+	static password
 	static queueName
 	Logger log
 	JedisPool jpool
@@ -25,8 +35,10 @@ class redisMessagingTools {
 	redisMessagingTools(pathToConfig) {
 		this.log = LoggerFactory.getLogger('redisToolsClient')
 		log.info('Starting Client')
-
-		try {
+		
+		
+		
+		try {	
 			log.info("Attempting to parse {} configuration file", pathToConfig)
 			def config = new ConfigSlurper().parse(new File(pathToConfig).toURL())
 			redisMessagingTools.queueName = config.queueName ?: 'matrix'
@@ -48,26 +60,26 @@ class redisMessagingTools {
 		
 	}
 	
-	def checkAmericanDate(d, m, y){
+	def checkAmericanDate(d, m){
 		// If the day is less than 12 and the month is less than 31
 		// this might be an American format date. Return with swapped values. 
-		if(d <= 12 && d >= 1){
-			if(m <= 31 && m >= 1){
-				def swap_day = m
-				def swap_month = d
-				return [swap_day, swap_month, y]
-			}
+		if(d <= 12 && d >= 1 && m <= 31 && m >= 12){
+			// We can only swap if the input month was bigger than 12.
+			// Otherwise we cannot infer it's an American date.
+			def swap_day = m
+			def swap_month = d
+			return [swap_day, swap_month]
 		} else {
-			return [d, m, y]
+			return [d, m]
 		}
 	}
 
 	def dateIsOk(String date){
 		def d = date[0..1].toInteger()
     		def m = date[3..4].toInteger()
+		def day = checkAmericanDate(d, m)[0]
+		def month = checkAmericanDate(d, m)[1]
 		def year = date[6..-1].toInteger()
-		def day = checkAmericanDate(d, m, y)[0]
-		def month = checkAmericanDate(d, m, y)[1]
 		
     		if(day > 31 || day < 1){
         		log.info('Invalid day input.')
@@ -133,6 +145,6 @@ class redisMessagingTools {
 }
 
 
-def x = new redisMessagingTools('config.groovy')
+def x = new redisMessagingTools('onfig.groovy')
 println x.getMessagesByDate('02-06-2013')
 println x.getMessageTTL('mykey')
