@@ -1,16 +1,23 @@
-import redis.clients.jedis.Jedis
-import redis.clients.jedis.JedisPool
-import redis.clients.jedis.JedisPoolConfig
+mport redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.exceptions.JedisConnectionException;
+
 import java.util.Date;
+//import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 class redisMessagingTools {
 
-        host = 'localhost'
-        port = 6379
-        timeout = 5
-        static password = 'AnwkHnT2lnGL5Qdlp9hb+A'
+        def port = 6379
+        def timeout = 5
+        static password //'AnwkHnT2lnGL5Qdlp9hb+A'
         static queueName
         Logger log
+        JedisPool jpool
 
         redisMessagingTools(pathToConfig) {
                 this.log = LoggerFactory.getLogger('redisToolsClient')
@@ -20,20 +27,18 @@ class redisMessagingTools {
                         log.info("Attempting to parse {} configuration file", pathToConfig)
                         def config = new ConfigSlurper().parse(new File(pathToConfig).toURL())
                         redisMessagingTools.queueName = config.queueName ?: 'matrix'
-                        redisMessagingTools.redisPassword = config.redisPassword ?: ''
+                        redisMessagingTools.password = config.password ?: ''
                         log.info("properties {} set on {}", config.toString(), this.class)
                 } catch(FileNotFoundException e) {
-                        log.info("File {} produced error: {}",pathToConfig, e)
+                                   log.info("File {} produced error: {}", pathToConfig, e)
                 }
-                try{
+                try {
                         /* JedisPool constructor takes poolConfig, host, port, timeout and password */
-                        JedisPool jpool =  new JedisPool(new JedisPoolConfig(), host, port, timeout, password)
-                } catch(Exception e){
+                        jpool =  new JedisPool(new JedisPoolConfig(), hostName, port, timeout, password)
+                } catch(Exception e) {
                         log.info("Could not open connection to RedisDB: {}\n{}", e, e.getStackTrace())
                 }
         }
-        //Jedis jedis = pool.getResource();
-
         /* Returns a Date object in milliseconds from
         * either ddMMyyyy or dd/MM/yyyy
         */
@@ -51,7 +56,7 @@ class redisMessagingTools {
         def getMessagesByDate(dateA, dateB=dateA) {
                 def start = parseDate(dateA)
                 def stop = parseDate(dateB)
-                if( start == stop ){ stop += 86399000 } // seconds in a day
+                if( start == stop ){ stop += 86399000 } // milliseconds in a day
 
                 def messageDb = this.jpool.getResource()
                 try{
@@ -62,15 +67,18 @@ class redisMessagingTools {
                 }
                 return messages
         }
-        //println getMessagesByDate('02062013')
 
         // Get a key's Time To Live
-        def getMessageTTL(key) {
+                def getMessageTTL(key) {
                 def msg = this.jpool.getResource()
                 return msg.ttl(key)
         }
         //println getMessageTTL('mykey')
 
         // Close the application:
-        jpool.destroy();
+        //jpool.destroy();
 }
+
+
+def x = new redisMessagingTools('config.groovy')
+println x.getMessagesByDate('02062013')
