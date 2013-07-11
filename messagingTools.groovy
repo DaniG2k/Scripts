@@ -6,6 +6,7 @@ import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.util.Date;
+import java.text.SimpleDateFormat;
 //import java.util.logging.Logger;
 
 import org.slf4j.Logger;
@@ -91,20 +92,25 @@ class redisMessagingTools {
  	* either ddMMyyyy or dd/MM/yyyy
  	*/
 	def parseDate(String date) {
-		def format = ''
+		def pattern = ''
 		println date.size()
        		if (date.size() < 8 || date.size() > 10){
  		   log.info('The date format {} does not appear to be correct.', date)
 		} else if(date.contains('/') && dateIsOk(date)){
-			format = 'dd/MM/yyyy'
+			pattern = 'dd/MM/yyyy'
     		} else if (date.contains('-') && dateIsOk(date)){
-			format = 'dd-MM-yyyy'	
+			pattern = 'dd-MM-yyyy'	
 		} else {
-			format = 'ddMMyyyy'
+			pattern = 'ddMMyyyy'
 		}
-		def newDate = new Date().parse(format, date)
-        	// return the UNIX time in milliseconds
-		return newDate.getTime()
+		try{
+			Date d = new SimpleDateFormat(pattern, Locale.ENGLISH).parse(date)
+			//println d.getTime()
+			// return the UNIX time in milliseconds
+			return d.getTime()
+		} catch(Exception e){
+			log.info('A date error has occurred: {}', e)
+		}
 	}
 
 	/* Input one, possibly two dates. If no second
@@ -132,11 +138,35 @@ class redisMessagingTools {
 		return msg.ttl(key)
 	}
 	
+
+	def zAddMessage(key, score=0, member=''){
+		def messageDb = this.jpool.getResource()
+		try{
+			messageDb.zadd(key, score, member);
+		} finally {
+			this.jpool.returnResource(messageDb)
+		}
+	}
+
+	def zRemMessage(key, member){
+		def messageDb = this.jpool.getResource()
+		try{
+			messageDb.zrem(key, member);
+		} finally {
+			this.jpool.returnResource(messageDb)
+		}
+	}
 	// Close the application:
-	//jpool.destroy();
+	//this.jpool.destroy();
 }
 
 
-def x = new redisMessagingTools('onfig.groovy')
+def x = new redisMessagingTools('config.groovy')
+println x.parseDate('11-07-2013')
+x.zAddMessage('myzset', 1373497200000, 'cat')
+x.zAddMessage('myzset', 1373497200001, 'dog')
+println x.getMessagesByDate('11072013')
+x.zRemMessage('myzset', 'cat')
+println x.getMessagesByDate('11072013')
 println x.getMessagesByDate('02-06-2013')
 println x.getMessageTTL('mykey')
