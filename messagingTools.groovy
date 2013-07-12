@@ -9,6 +9,9 @@ import java.util.Date;
 import java.text.SimpleDateFormat;
 //import java.util.logging.Logger;
 
+import groovy.json.JsonBuilder;
+import groovy.json.JsonSlurper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -161,6 +164,7 @@ class redisMessagingTools {
 
 }
 
+/*
 // Convert a hash object to a string
 // This makes it easier to put hashes into redis
 def hashToString(hash) {
@@ -180,6 +184,18 @@ def stringToHash(String s) {
 	}
 	return map
 }
+*/
+
+def serialize(hash){
+	builder = new JsonBuilder()
+	builder(hash)
+	return builder.toString()
+}
+
+def deserialize(String s){
+	slurper = new JsonSlurper()
+	return slurper.parseText(s)
+}
 
 
 def x = new redisMessagingTools('config.groovy')
@@ -188,13 +204,21 @@ println x.parseDate('11-07-2013')
 
 x.zAddMessage('myzset', 1373497200000, 'cat')
 x.zAddMessage('myzset', 1373497200001, 'dog')
-x.zAddMessage('myzset', 1373497200002, hashToString(hash))
 
-println '\nConvert string back to hash:\n  '+stringToHash(hashToString(hash))
+x.zAddMessage('myzset', 1373497200002, serialize(hash))
+println x.getMessagesByDate('11072013')
+
+println '\nConvert string back to hash:\n  '+deserialize(serialize(hash))
 
 println x.getMessagesByDate('11072013')
 println '\nRemove string \'cat\' from myzset:\n  '
 x.zRemMessage('myzset', 'cat')
 println x.getMessagesByDate('11072013')
+
+println '\nRemove hashmap:\n  '
+x.zRemMessage('myzset',serialize(hash))
+println x.getMessagesByDate('11072013')
+println '\n'
 println x.getMessagesByDate('02-06-2013')
 println x.getMessageTTL('mykey')
+
