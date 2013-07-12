@@ -159,34 +159,41 @@ class redisMessagingTools {
 	// Close the application:
 	//this.jpool.destroy();
 
-	// Convert a hash object to a string
-	// This makes it easier to put hashes into redis
-	def hashToString(hash) {
-		return hash.toString()
-	}
+}
 
-	// Convert a string object to a hash map
-	// This makes it easier to retrieve hashes from redis
-	// that are being stored as strings.
-	def stringToHash(String s) {
-		def map = [:]
-		def string = s[1..-2]
-		def strarray = string.split(",")
-		
-		strarray.each { kvarray ->
-			def kv = kvarray.trim().split(':')
-			map[kv[0]] = kv[1]
-		}
-		return map
+// Convert a hash object to a string
+// This makes it easier to put hashes into redis
+def hashToString(hash) {
+	return hash.toString()
+}
+// Convert a string object to a hash map
+// This makes it easier to retrieve hashes from redis
+// that are being stored as strings.
+def stringToHash(String s) {
+	def map = [:]
+	def string = s[1..-2]
+	def strarray = string.split(",")
+	
+	strarray.each { kvarray ->
+		def kv = kvarray.trim().split(':')
+		map[kv[0]] = kv[1]
 	}
+	return map
 }
 
 
 def x = new redisMessagingTools('config.groovy')
+def hash = [0:'tiger', 1:'mouse', 2:'rabbit', 3:'dragon'] 
 println x.parseDate('11-07-2013')
+
 x.zAddMessage('myzset', 1373497200000, 'cat')
 x.zAddMessage('myzset', 1373497200001, 'dog')
+x.zAddMessage('myzset', 1373497200002, hashToString(hash))
+
+println '\nConvert string back to hash:\n  '+stringToHash(hashToString(hash))
+
 println x.getMessagesByDate('11072013')
+println '\nRemove string \'cat\' from myzset:\n  '
 x.zRemMessage('myzset', 'cat')
 println x.getMessagesByDate('11072013')
 println x.getMessagesByDate('02-06-2013')
