@@ -37,8 +37,6 @@ class redisMessagingTools {
 		this.log = LoggerFactory.getLogger('redisToolsClient')
 		log.info('Starting Client')
 		
-		
-		
 		try {	
 			log.info("Attempting to parse {} configuration file", pathToConfig)
 			def config = new ConfigSlurper().parse(new File(pathToConfig).toURL())
@@ -93,8 +91,10 @@ class redisMessagingTools {
  	*/
 	def parseDate(String date) {
 		def pattern = ''
-		println date.size()
-       		if (date.size() < 8 || date.size() > 10){
+       		def temp = date.trim()
+		date = temp
+
+		if (date.size() < 8 || date.size() == 9 || date.size() > 10){
  		   log.info('The date format {} does not appear to be correct.', date)
 		} else if(date.contains('/') && dateIsOk(date)){
 			pattern = 'dd/MM/yyyy'
@@ -158,6 +158,27 @@ class redisMessagingTools {
 	}
 	// Close the application:
 	//this.jpool.destroy();
+
+	// Convert a hash object to a string
+	// This makes it easier to put hashes into redis
+	def hashToString(hash) {
+		return hash.toString()
+	}
+
+	// Convert a string object to a hash map
+	// This makes it easier to retrieve hashes from redis
+	// that are being stored as strings.
+	def stringToHash(String s) {
+		def map = [:]
+		def string = s[1..-2]
+		def strarray = string.split(",")
+		
+		strarray.each { kvarray ->
+			def kv = kvarray.trim().split(':')
+			map[kv[0]] = kv[1]
+		}
+		return map
+	}
 }
 
 
