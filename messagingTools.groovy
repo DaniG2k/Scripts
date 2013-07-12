@@ -142,7 +142,7 @@ class redisMessagingTools {
 	}
 	
 
-	def zAddMessage(key, score=0, member=''){
+	def addMessage(key, score=0, member=''){
 		def messageDb = this.jpool.getResource()
 		try{
 			messageDb.zadd(key, score, member);
@@ -151,7 +151,7 @@ class redisMessagingTools {
 		}
 	}
 
-	def zRemMessage(key, member){
+	def delMessage(key, member){
 		def messageDb = this.jpool.getResource()
 		try{
 			messageDb.zrem(key, member);
@@ -202,21 +202,21 @@ def x = new redisMessagingTools('config.groovy')
 def hash = [0:'tiger', 1:'mouse', 2:'rabbit', 3:'dragon'] 
 println x.parseDate('11-07-2013')
 
-x.zAddMessage('myzset', 1373497200000, 'cat')
-x.zAddMessage('myzset', 1373497200001, 'dog')
+x.addMessage('myzset', 1373497200000, 'cat')
+x.addMessage('myzset', 1373497200001, 'dog')
 
-x.zAddMessage('myzset', 1373497200002, serialize(hash))
+x.addMessage('myzset', 1373497200002, serialize(hash))
 println x.getMessagesByDate('11072013')
 
 println '\nConvert string back to hash:\n  '+deserialize(serialize(hash))
 
 println x.getMessagesByDate('11072013')
 println '\nRemove string \'cat\' from myzset:\n  '
-x.zRemMessage('myzset', 'cat')
+x.delMessage('myzset', 'cat')
 println x.getMessagesByDate('11072013')
 
 println '\nRemove hashmap:\n  '
-x.zRemMessage('myzset',serialize(hash))
+x.delMessage('myzset',serialize(hash))
 println x.getMessagesByDate('11072013')
 println '\n'
 println x.getMessagesByDate('02-06-2013')
