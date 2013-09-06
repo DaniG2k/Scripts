@@ -1,9 +1,9 @@
 /*
- * Keele U.
+ * Keele University
  *
  * Find duplicate staff e-mails, poorly formatted titles and their urls.
  *
- * Author: DaniG2k
+ * Author: dpestilli
  *
  */
 
@@ -13,7 +13,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-def ROOT = '/opt/funnelback/data'
+def ROOT = '/opt/funnelback'
 def COLLECTION = 'people'
 def VIEW = 'live'
 
@@ -22,13 +22,14 @@ def verbose = true // Make true if you want to see detailed output of titles, e-
 def urls = []
 def emails = []
 def titles = []
+def names = []
 
-new File("${ROOT}/${COLLECTION}/${VIEW}/data/http/www.keele.ac.uk/").eachFileRecurse(FILES){ f ->
+new File("${ROOT}/data/${COLLECTION}/${VIEW}/data/http/www.keele.ac.uk/").eachFileRecurse(FILES){ f ->
   content = f.getText()
   Document doc = Jsoup.parse(content.split("</DOCHDR>")[1]);
-
   Element profile = doc.getElementsByAttributeValueMatching("data-profile", "staff").first();
-  if(profile) {
+
+   if(profile) {
     content.find(/(?ism)base.href..(.*?)"/) { match, url ->
       urls.add(url);
     }
@@ -36,16 +37,28 @@ new File("${ROOT}/${COLLECTION}/${VIEW}/data/http/www.keele.ac.uk/").eachFileRec
 
   emails.add( getMetaContent(doc, "person_email", verbose) );
   titles.add( getMetaContent(doc, "DC.Title", verbose) );
-  if( verbose ) { println urls.last(); println '';}
+  names.add( getStaffNames(doc) );
+  if( verbose ) { println urls.last(); println ''; }
+}
+
+private getStaffNames(content){
+  def staffNames = []
+  def h4 = content.select("h4");
+  h4.each { elt ->
+    if( elt.getElementsByClass("ui-widget-header").first() ){
+      staffNames.add(elt.text());
+    }
+  }
+  return staffNames;
 }
 
 private getMetaContent(content, metaName, verbose){
-  Elements metaContent = content.select("meta[name=${metaName}]");
+    Elements metaContent = content.select("meta[name=${metaName}]");
   for (Element elt : metaContent) {
     final String s = elt.attr("content");
     if(s) {
       if( verbose ) {
-        def tabs = ("${metaName}".size() > 8) ? 1 : 2 // Set number of tabs for proper indentation
+        def tabs = ("${metaName}".size() > 8) ? 1 : 2 // Set number of tabs for proper formatting.
         println "${metaName} --->" + ("\t" * tabs) + s;
       }
       return s;
@@ -74,9 +87,13 @@ private findDuplicateEmails(emails){
 }
 
 if(verbose) {
+  println "Duplicate e-mails:\n";
   findDuplicateEmails(emails).each { email ->
-    println "Duplicate e-mail:\t${email}";
+    println "\t${email}";
   }
+  println '\n';
+  println "Proper names of staff members:\n";
+  names.each { name -> println '\t' + name[0]; }
 }
 
 println "\nNumber of duplicate e-mails: " + findDuplicateEmails(emails).size();
