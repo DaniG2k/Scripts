@@ -1,5 +1,6 @@
 /*
- * Keele
+ * Keele U.
+ *
  * Find duplicate staff e-mails, poorly formatted titles and their urls.
  *
  * Author: DaniG2k
@@ -16,7 +17,7 @@ def ROOT = '/opt/funnelback/data'
 def COLLECTION = 'people'
 def VIEW = 'live'
 
-def verbose = false // true if you want to see detailed output of titles, e-mails, urls and their duplicates
+def verbose = true // Make true if you want to see detailed output of titles, e-mails, urls and their duplicates
 
 def urls = []
 def emails = []
@@ -36,14 +37,17 @@ new File("${ROOT}/${COLLECTION}/${VIEW}/data/http/www.keele.ac.uk/").eachFileRec
   emails.add( getMetaContent(doc, "person_email", verbose) );
   titles.add( getMetaContent(doc, "DC.Title", verbose) );
   if( verbose ) { println urls.last(); println '';}
-  }
+}
 
 private getMetaContent(content, metaName, verbose){
   Elements metaContent = content.select("meta[name=${metaName}]");
   for (Element elt : metaContent) {
     final String s = elt.attr("content");
     if(s) {
-      if( verbose ) { println "${metaName}----> " + s; }
+      if( verbose ) {
+        def tabs = ("${metaName}".size() > 8) ? 1 : 2 // Set number of tabs for proper indentation
+        println "${metaName} --->" + ("\t" * tabs) + s;
+      }
       return s;
     }
   }
@@ -71,7 +75,7 @@ private findDuplicateEmails(emails){
 
 if(verbose) {
   findDuplicateEmails(emails).each { email ->
-    println "Duplicate e-mail: ${email}";
+    println "Duplicate e-mail:\t${email}";
   }
 }
 
