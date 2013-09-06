@@ -1,5 +1,5 @@
 /*
- * Keele University
+ * Keele U.
  *
  * Find duplicate staff e-mails, poorly formatted titles and their urls.
  *
