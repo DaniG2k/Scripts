@@ -2,8 +2,12 @@
 #
 # (Semi)-random string generator
 # random.rb len lucky
-# Length defaults to 10
-# Lucky defaults to true (include '9', exclude '4')
+#  - len defaults to 10
+#  - lucky defaults to true
+#
+# Luckyness will include the number 9 (lucky in many East Asian countries)
+# and omit the number 4 (which is pronounced the same as "death" in 
+# Chinese/Japanese/Korean) in the final random string that is generated.
 #
 
 def pwd_gen
