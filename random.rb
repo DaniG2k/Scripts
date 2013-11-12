@@ -2,7 +2,7 @@
 #
 # (Semi)-random string generator
 # random.rb len lucky
-#  - len defaults to 10
+#  - len defaults to 18
 #  - lucky defaults to true
 #
 # Luckyness will include the number 9 (lucky in many East Asian countries)
