@@ -1,12 +1,12 @@
 #!/usr/bin/ruby
 #
 # (Semi)-random string generator
-# random.rb len lucky
+# Usage: ./random.rb len lucky
 #  - len defaults to 18
 #  - lucky defaults to true
 #
 # Luckyness will include the number 9 (lucky in many East Asian countries)
-# and omit the number 4 (which is pronounced the same as "death" in 
+# and omit the number 4 (which is pronounced the same as "death" in
 # Chinese/Japanese/Korean) in the final random string that is generated.
 #
 
@@ -23,6 +23,7 @@ elsif ARGV[1] and %w(unlucky false f).include?(ARGV[1].downcase)
 	lucky = false
 end
 
+pwd = String.new
 if lucky
 	pwd = pwd_gen until pwd.include?('9') and !pwd.include?('4')
 else
