@@ -8,7 +8,7 @@
 
 def pwd_gen
 	pwd = Array.new
-  rc = ->{ [*'/'..'~'].sample }
+	rc = ->{ [*'/'..'~'].sample }
 	ARGV[0] ? ARGV[0].to_i.times{ pwd << rc.call } : 18.times { pwd << rc.call }
 	pwd.join
 end
