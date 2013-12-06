@@ -22,7 +22,8 @@ fi
 echo "Type the hostname for this server (eg. demo.funnelback.co.uk)"
 read hostname
 
-http="# Main HTTP proxy configuration
+cat > "$openresty_conf/http.conf" <<EOF
+#Main HTTP proxy configuration
 #
 server {
 # Override the 'localhost' server configured in nginx.conf
@@ -41,9 +42,11 @@ proxy_set_header X-Real-IP \$remote_addr;
 location / {
 proxy_pass http://http-upstream;
 }
-}"
+}
+EOF
 
-https="# Main HTTPS proxy configuration
+cat > "$openresty_conf/https.conf" <<EOF
+# Main HTTPS proxy configuration
 #
 server {
 listen 443;
@@ -66,19 +69,18 @@ ssl_verify_client off;
 location / {
 proxy_pass https://https-upstream;
 }
-}"
+}
+EOF
 
-upstream="upstream http-upstream {
+cat > "$openresty_conf/upstream.conf" <<EOF
+upstream http-upstream {
 server 127.0.0.1:8080;
 }
 
 upstream https-upstream {
 server 127.0.0.1:8443;
-}"
-
-echo $http > "$openresty_conf/http.conf"
-echo $https > "$openresty_conf/https.conf"
-echo $upstream > "$openresty_conf/upstream.conf"
+}
+EOF
 
 if [ ! -d "/opt/funnelback" ]; then
   echo "Please specifiy the Funnelback installation directory"
@@ -88,16 +90,17 @@ else
   fb_install_dir="/opt/funnelback"
 fi
 
-global="urls.search_port=8080
-urls.admin_port=8443"
-
-echo $global > "$fb_install_dir/conf/global.cfg"
+cat > "$fb_install_dir/conf/global.cfg" <<EOF
+urls.search_port=8080
+urls.admin_port=8443
+EOF
 
 /etc/init.d/funnelback-jetty-webserver restart
 
 # Install certificates
 
-nointer="-----BEGIN CERTIFICATE-----
+cat > "$openresty_base/star.funnelback.co.uk-nointermediate.crt" <<EOF
+-----BEGIN CERTIFICATE-----
 MIIFPDCCBCSgAwIBAgIDCq/wMA0GCSqGSIb3DQEBBQUAMDwxCzAJBgNVBAYTAlVT
 MRcwFQYDVQQKEw5HZW9UcnVzdCwgSW5jLjEUMBIGA1UEAxMLUmFwaWRTU0wgQ0Ew
 HhcNMTMwMjIwMDQ1NDAyWhcNMTQwMjIzMTAwMDUwWjCBwTEpMCcGA1UEBRMgYWJO
@@ -126,9 +129,11 @@ pwOFJQ6Os4grB8gkEx12rS38/hyutmHaXSJQfaWyR/QLobKvSDt/iptqc5Dlqa2t
 gPTN3XcSrpLqvZIdnI2TMcuJyzKSEMAeHLMdSPvoCYxiWHxBNVyfoPY57nCfnCdO
 4nCTgAy8CQoCIIy1bIRzMGtFB8weEi9vbmLCwPsNUThcjPGvo4p1iUW+b5FKjTMu
 6MHuCBhoYuns8yTQ/po/g2EflBS4lFvJmQXQh6Y9JD01RALKINRSQUZlTV19/XvP
------END CERTIFICATE-----"
+-----END CERTIFICATE-----
+EOF
 
-crt="-----BEGIN CERTIFICATE-----
+cat > "$openresty_base/star.funnelback.co.uk-nointermediate.crt" <<EOF
+-----BEGIN CERTIFICATE-----
 MIIFPDCCBCSgAwIBAgIDCq/wMA0GCSqGSIb3DQEBBQUAMDwxCzAJBgNVBAYTAlVT
 MRcwFQYDVQQKEw5HZW9UcnVzdCwgSW5jLjEUMBIGA1UEAxMLUmFwaWRTU0wgQ0Ew
 HhcNMTMwMjIwMDQ1NDAyWhcNMTQwMjIzMTAwMDUwWjCBwTEpMCcGA1UEBRMgYWJO
@@ -203,9 +208,11 @@ SUNjpWxOJ4cl61tt/qJ/OCjgNqutOaWlYsS3XFgsql0BYKZiZ6PAx2Ij9OdsRu61
 04BqIhPSLT90T+qvjF+0OJzbrs6vhB6m9jRRWXnT43XcvNfzc9+S7NIgWW+c+5X4
 knYYCnwPLKbK3opie9jzzl9ovY8+wXS7FXI6FoOpC+ZNmZzYV+yoAVHHb1c0XqtK
 LEL2TxyJeN4mTvVvk0wVaydWTQBUbHq3tw==
------END CERTIFICATE-----"
+-----END CERTIFICATE-----
+EOF
 
-key="-----BEGIN RSA PRIVATE KEY-----
+cat > "$openresty_base/star.funnelback.co.uk-nointermediate.key" <<EOF
+-----BEGIN RSA PRIVATE KEY-----
 MIIEpQIBAAKCAQEA5wuuJbGfx8TganpqmPfivXPU61kkLUyAkcxtRqBeyZf+p98Y
 cjJzyXrDYzm5yj2713D8MveQ5dTyd3c4x1CaScohRjEYtaZllmaFgZUq4jguaC0p
 EM55o59e/K/4Yjsb8+8fSuDctC6BOh7d86OydGToSzBGZ0ha5zENsB+Z05/Ol1v6
@@ -231,8 +238,5 @@ Ji/LnjSykwFWG3hKtggUYOIjXwti0eJglkzTq4HH1eGqS9O+BffKGZmDaVm/6y7U
 I5kIqxcCgYEAi4yYxUSmfarrQ0zNCUKA1NJZJSqnuWvDl6p+5DnPPElbN9Xaf+5D
 c4GQ0vqQOD8f6+iO5yI7ITG8s3VfREFMhg+bwPKvbMHsi93vAOnAmP9uPSq+a2bm
 f75bX4d/+uZuMUotYToCdCre3ySBlfJMZmdhxsX0vSi0pbCorsrWMoI=
------END RSA PRIVATE KEY-----"
-
-echo $nointer > "$openresty_base/star.funnelback.co.uk-nointermediate.crt"
-echo $key > "$openresty_base/star.funnelback.co.uk-nointermediate.key"
-echo $crt > "$openresty_base/star.funnelback.co.uk-nointermediate.crt"
+-----END RSA PRIVATE KEY-----
+EOF
