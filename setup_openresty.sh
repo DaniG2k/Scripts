@@ -28,20 +28,20 @@ cat > "$openresty_conf/http.conf" <<EOF
 server {
 # Override the 'localhost' server configured in nginx.conf
 # which displays only the status page to local hosts
-listen 80 default_server;
-server_name $hostname;
+  listen 80 default_server;
+  server_name $hostname;
 
-proxy_set_header Host \$host;
-proxy_set_header x-forwarded-for \$proxy_add_x_forwarded_for;
-proxy_set_header X-Real-IP \$remote_addr;
+  proxy_set_header Host \$host;
+  proxy_set_header x-forwarded-for \$proxy_add_x_forwarded_for;
+  proxy_set_header X-Real-IP \$remote_addr;
 
 # Limit the number of requests, using the all zone and setting a burst rate of 100
 # limit_req zone=all burst=100 nodelay;
 
 # Send all requests to http-upstream
-location / {
-proxy_pass http://http-upstream;
-}
+  location / {
+    proxy_pass http://http-upstream;
+  }
 }
 EOF
 
@@ -49,36 +49,36 @@ cat > "$openresty_conf/https.conf" <<EOF
 # Main HTTPS proxy configuration
 #
 server {
-listen 443;
-server_name $hostname;
+  listen 443;
+  server_name $hostname;
 
-ssl on;
-ssl_certificate /etc/openresty/star.funnelback.co.uk.crt;
-ssl_certificate_key /etc/openresty/star.funnelback.co.uk.key;
-ssl_session_timeout 5m;
+  ssl on;
+  ssl_certificate /etc/openresty/star.funnelback.co.uk.crt;
+  ssl_certificate_key /etc/openresty/star.funnelback.co.uk.key;
+  ssl_session_timeout 5m;
 
-ssl_protocols SSLv2 SSLv3 TLSv1;
-ssl_ciphers HIGH:!aNULL:!MD5;
-ssl_prefer_server_ciphers on;
-ssl_verify_client off;
+  ssl_protocols SSLv2 SSLv3 TLSv1;
+  ssl_ciphers HIGH:!aNULL:!MD5;
+  ssl_prefer_server_ciphers on;
+  ssl_verify_client off;
 
 # Limit the number of requests, using the all zone and setting a burst rate of 100
 #limit_req zone=all burst=100 nodelay;
 
 #Send all requests to https-upstream
-location / {
-proxy_pass https://https-upstream;
-}
+  location / {
+    proxy_pass https://https-upstream;
+  }
 }
 EOF
 
 cat > "$openresty_conf/upstream.conf" <<EOF
 upstream http-upstream {
-server 127.0.0.1:8080;
+  server 127.0.0.1:8080;
 }
 
 upstream https-upstream {
-server 127.0.0.1:8443;
+  server 127.0.0.1:8443;
 }
 EOF
 
@@ -99,7 +99,7 @@ EOF
 
 # Install certificates
 
-cat > "$openresty_base/star.funnelback.co.uk-nointermediate.crt" <<EOF
+cat > "$openresty_base/star.funnelback.co.uk-nointermediate.crt" <<"EOF"
 -----BEGIN CERTIFICATE-----
 MIIFPDCCBCSgAwIBAgIDCq/wMA0GCSqGSIb3DQEBBQUAMDwxCzAJBgNVBAYTAlVT
 MRcwFQYDVQQKEw5HZW9UcnVzdCwgSW5jLjEUMBIGA1UEAxMLUmFwaWRTU0wgQ0Ew
@@ -132,7 +132,7 @@ gPTN3XcSrpLqvZIdnI2TMcuJyzKSEMAeHLMdSPvoCYxiWHxBNVyfoPY57nCfnCdO
 -----END CERTIFICATE-----
 EOF
 
-cat > "$openresty_base/star.funnelback.co.uk-nointermediate.crt" <<EOF
+cat > "$openresty_base/star.funnelback.co.uk-nointermediate.crt" <<"EOF"
 -----BEGIN CERTIFICATE-----
 MIIFPDCCBCSgAwIBAgIDCq/wMA0GCSqGSIb3DQEBBQUAMDwxCzAJBgNVBAYTAlVT
 MRcwFQYDVQQKEw5HZW9UcnVzdCwgSW5jLjEUMBIGA1UEAxMLUmFwaWRTU0wgQ0Ew
@@ -211,7 +211,7 @@ LEL2TxyJeN4mTvVvk0wVaydWTQBUbHq3tw==
 -----END CERTIFICATE-----
 EOF
 
-cat > "$openresty_base/star.funnelback.co.uk-nointermediate.key" <<EOF
+cat > "$openresty_base/star.funnelback.co.uk-nointermediate.key" <<"EOF"
 -----BEGIN RSA PRIVATE KEY-----
 MIIEpQIBAAKCAQEA5wuuJbGfx8TganpqmPfivXPU61kkLUyAkcxtRqBeyZf+p98Y
 cjJzyXrDYzm5yj2713D8MveQ5dTyd3c4x1CaScohRjEYtaZllmaFgZUq4jguaC0p
