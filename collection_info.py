@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# Written by Daniele Pestilli - July 2013
 
 import sys
 import os
