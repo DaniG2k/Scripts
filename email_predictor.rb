@@ -4,7 +4,7 @@ class Advisor
   attr_reader :name, :domain
   # Use an args hash in case we want to easily add other
   # parameters in the future without remembering their order.
-  def initialize(args)
+  def initialize(args = {})
     @name = args[:name]
     @domain = args[:domain]
   end
@@ -16,7 +16,7 @@ end
 class EmailPredictor
   attr_reader :name, :domain
   
-  def initialize(args)
+  def initialize(args = {})
     @name = args[:name]
     @domain = args[:domain]
     # A database of known name/email pairs.
@@ -69,7 +69,7 @@ end
 class Email
   attr_reader :email, :name
   
-  def initialize(args)
+  def initialize(args = {})
     @name = args[:name]
     @email = args[:email]
   end
