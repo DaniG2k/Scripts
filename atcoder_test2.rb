@@ -55,10 +55,11 @@ product << ordered.shift
 end
 product << ordered.shift
 
-# [20, 30, 30, 10, 10, 40, 40, 50, 50, 60]
-# There is a mistake in the order of operations here,
-# which I unfortunately did not have time to correct before submitting.
+# The code is all correct until this point
+# product contains: [20, 30, 30, 10, 10, 40, 40, 50, 50, 60]
 
+# There is a mistake in the order of operations here,
+# which I unfortunately did not have time to correct before submitting:
 total = 1
 product.each_with_index do |n, i|
   if product[i+1]
