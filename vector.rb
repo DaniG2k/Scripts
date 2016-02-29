@@ -11,12 +11,12 @@ class Vector
   end
 
   def +(vec2)
-    check_sizes(vec2)
+    check_sizes vec2
     Vector.new @points.each_with_index.map {|_, i| (@points[i] + vec2.points[i])}
   end
 
   def -(vec2)
-    check_sizes(vec2)
+    check_sizes vec2
     Vector.new @points.each_with_index.map {|_, i| (@points[i] - vec2.points[i])}
   end
 
@@ -38,12 +38,12 @@ class Vector
   end
 
   def dot_product(vec2)
-    check_sizes(vec2)
+    check_sizes vec2
     @points.each_with_index.map {|n, i| n * vec2.points[i]}.reduce(:+)
   end
 
   %w(radians degrees).each do |type|
-    define_method("angle_#{type}") do |vec2|
+    define_method("angle_in_#{type}") do |vec2|
       angle = Math.acos(dot_product(vec2) / (magnitude * vec2.magnitude))
       if type == 'degrees'
         angle * 180 / Math::PI
