@@ -53,6 +53,14 @@ class Vector
     end
   end
 
+  # def parallel?(vec2)
+  #   normalize.points == vec2.normalize.points
+  # end
+
+  def orthogonal?(vec2)
+    dot_product(vec2).zero?
+  end
+
   private
   def check_sizes(vec2)
     raise ArgumentError, 'Vectors are of unequal size.' if size != vec2.size
