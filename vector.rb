@@ -54,12 +54,12 @@ module Udacity
       end
     end
 
-    def parallel?(vec2)
+    def is_parallel_to?(vec2)
       dot_product(vec2).abs == (magnitude * vec2.magnitude).abs
     end
 
-    def orthogonal?(vec2)
-      dot_product(vec2).round(10).zero?
+    def is_orthogonal_to?(vec2, tolerance=1e-10)
+      dot_product(vec2).abs < tolerance
     end
 
     private
