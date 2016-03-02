@@ -62,6 +62,21 @@ module Udacity
       dot_product(vec2).abs < tolerance
     end
 
+    def projection(vec2)
+      Vector.new(dot_product(vec2).to_f / dot_product(self)) * self
+    end
+
+    def component_parallel_to(vec2)
+      unit_vector = vec2.normalize
+      weight = dot_product(unit_vector)
+      Vector.new(weight) * unit_vector
+    end
+
+    def component_orthogonal_to(vec2)
+      projection = component_parallel_to(vec2)
+      self - projection
+    end
+
     private
     def check_sizes(vec2)
       raise ArgumentError, 'Vectors are of unequal size.' if size != vec2.size
