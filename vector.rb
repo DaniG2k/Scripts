@@ -12,12 +12,12 @@ module Udacity
     end
 
     def +(vec2)
-      check_sizes vec2
+      check_size vec2
       Vector.new @points.each_with_index.map {|_, i| (@points[i] + vec2.points[i])}
     end
 
     def -(vec2)
-      check_sizes vec2
+      check_size vec2
       Vector.new @points.each_with_index.map {|_, i| (@points[i] - vec2.points[i])}
     end
 
@@ -39,8 +39,23 @@ module Udacity
     end
 
     def dot_product(vec2)
-      check_sizes vec2
+      check_size vec2
       @points.each_with_index.map {|n, i| n * vec2.points[i]}.reduce(:+)
+    end
+
+    def cross_product(vec2)
+      # More than 2 points are required for unpacking.
+      if size == 2 && vec2.size == 2
+        @points << 0
+        vec2.points << 0
+      end
+      a1, a2, a3 = @points[0], @points[1], @points[2]
+      b1, b2, b3 = vec2.points[0], vec2.points[1], vec2.points[2]
+      Vector.new [
+        ((a2*b3) - (a3*b2)),
+        ((a3*b1) - (a1*b3)),
+        ((a1*b2) - (a2*b1))
+      ]
     end
 
     %w(radians degrees).each do |type|
@@ -77,8 +92,16 @@ module Udacity
       self - projection
     end
 
+    def area_parallelogram(vec2)
+      cross_product(vec2).magnitude
+    end
+
+    def area_triangle(vec2)
+      area_parallelogram(vec2) / 2.0
+    end
+
     private
-    def check_sizes(vec2)
+    def check_size(vec2)
       raise ArgumentError, 'Vectors are of unequal size.' if size != vec2.size
     end
   end
